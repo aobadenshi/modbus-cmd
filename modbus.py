@@ -12,9 +12,10 @@ def main():
     parser.add_argument('-p', '--port', help='tty device name', type=str, default='/dev/ttyUSB0')
     parser.add_argument('-b', '--baudrate', help='baud rate', type=int, default=9600)
     parser.add_argument('-u', '--unit', help='unit number that you communication to', type=int, default=1)
-    parser.add_argument('-c', help='command (ri: read input register, rh: read holding register, w: write register)', type=str, default='ri')
+    parser.add_argument('-c', help='command (ri: read input register, rh: read holding register, w: write register, wm: write multiple registers)', type=str, default='ri')
     parser.add_argument('-a', '--addr', help='register address to read or write', type=lambda x: int(x,0), default=0x0000)
     parser.add_argument('--value', help='Optional: value to write', type=int)
+    parser.add_argument('--values', help='Optional: values to write', type=int, nargs='*')
 
     args = parser.parse_args()
     print(f'port: {args.port}, baud rate: {args.baudrate}, unit: {args.unit}, command: {args.c}, address: {args.addr}, value: {args.value}')
@@ -41,6 +42,12 @@ def main():
                     print(f'wrote value {args.value} to address {args.addr} of {args.unit}')
                 else:
                     raise Exception('No value is specified')
+            elif args.c == 'wm':
+                if args.values is not None:
+                    ref = c.write_registers(address=args.addr, values=args.values, unit=args.unit)
+                    print(f'wrote value {args.values} to address {args.addr} of {args.unit}')
+                else:
+                    raise Exception('No values are specified')
         else:
             print(f'Could not connect {args.port}, {args.baudrate}')
 

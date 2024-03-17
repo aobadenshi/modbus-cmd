@@ -53,3 +53,10 @@ port: /dev/ttyUSB0, baud rate: 9600, unit: 21, command: w, address: 2001, value:
 wrote value 1 to address 2001 of 21
 ```
 
+## Write multiple Registers
+
+```(bash)
+$ python modbus.py -p COM6 -u 2 -b 19200 -c wm -a 0x2000 --values 2 1800
+port: COM6, baud rate: 19200, unit: 2, command: wm, address: 8192, value: None
+wrote value [2, 1800] to address 8192 of 2
+```

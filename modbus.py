@@ -14,25 +14,30 @@ def main():
     parser.add_argument('-u', '--unit', help='unit number that you communication to', type=int, default=1)
     parser.add_argument('-c', help='command (ri: read input register, rh: read holding register, w: write register, wm: write multiple registers)', type=str, default='ri')
     parser.add_argument('-a', '--addr', help='register address to read or write', type=lambda x: int(x,0), default=0x0000)
+    parser.add_argument('-n', '--nbytes', help='number of bytes to read', type=int, default=1)
     parser.add_argument('--value', help='Optional: value to write', type=int)
     parser.add_argument('--values', help='Optional: values to write', type=int, nargs='*')
 
     args = parser.parse_args()
-    print(f'port: {args.port}, baud rate: {args.baudrate}, unit: {args.unit}, command: {args.c}, address: {args.addr}, value: {args.value}')
+    print(f'port: {args.port}, baud rate: {args.baudrate}, unit: {args.unit}, command: {args.c}, address: {args.addr}, nbytes: {args.nbytes}, value: {args.value}')
     
     with ModbusSerialClient(method='rtu', port=args.port, baudrate=args.baudrate) as c:
         if c.connect():
             if args.c == 'ri':
-                res = c.read_input_registers(address=args.addr, count=1, unit=args.unit)
+                res = c.read_input_registers(address=args.addr, count=args.nbytes, unit=args.unit)
                 if res.isError():
                     raise Exception(f'Read error from a unit ({args.unit}) with {args.addr}')
+                elif args.nbytes > 1:
+                    print(f'read values is {[hex(r) for r in res.registers]}')
                 else:
                     v = BinaryPayloadDecoder.fromRegisters(res.registers, byteorder=Endian.Big, wordorder=Endian.Big)
                     print(f'read value is {v.decode_16bit_int()}')
             elif args.c == 'rh':
-                res = c.read_holding_registers(address=args.addr, count=1, unit=args.unit)
+                res = c.read_holding_registers(address=args.addr, count=args.nbytes, unit=args.unit)
                 if res.isError():
                     raise Exception(f'Read error from a unit ({args.unit}) with {args.addr}')
+                elif args.nbytes > 1:
+                    print(f'read values is {[hex(r) for r in res.registers]}')
                 else:
                     v = BinaryPayloadDecoder.fromRegisters(res.registers, byteorder=Endian.Big, wordorder=Endian.Big)
                     print(f'read value is {v.decode_16bit_int()}')

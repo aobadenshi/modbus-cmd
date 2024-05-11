@@ -19,24 +19,24 @@ def main():
     parser.add_argument('--values', help='Optional: values to write', type=int, nargs='*')
 
     args = parser.parse_args()
-    print(f'port: {args.port}, baud rate: {args.baudrate}, unit: {args.unit}, command: {args.c}, address: {args.addr}, value: {args.value}')
+    print(f'port: {args.port}, baud rate: {args.baudrate}, unit: {args.unit}, command: {args.c}, address: {args.addr}, nbytes: {args.nbytes}, value: {args.value}')
     
     with ModbusSerialClient(method='rtu', port=args.port, baudrate=args.baudrate) as c:
         if c.connect():
             if args.c == 'ri':
-                res = c.read_input_registers(address=args.addr, count=args.n, unit=args.unit)
+                res = c.read_input_registers(address=args.addr, count=args.nbytes, unit=args.unit)
                 if res.isError():
                     raise Exception(f'Read error from a unit ({args.unit}) with {args.addr}')
-                elif args.n > 1:
+                elif args.nbytes > 1:
                     print(f'read values is {[hex(r) for r in res.registers]}')
                 else:
                     v = BinaryPayloadDecoder.fromRegisters(res.registers, byteorder=Endian.Big, wordorder=Endian.Big)
                     print(f'read value is {v.decode_16bit_int()}')
             elif args.c == 'rh':
-                res = c.read_holding_registers(address=args.addr, count=args.n, unit=args.unit)
+                res = c.read_holding_registers(address=args.addr, count=args.nbytes, unit=args.unit)
                 if res.isError():
                     raise Exception(f'Read error from a unit ({args.unit}) with {args.addr}')
-                elif args.n > 1:
+                elif args.nbytes > 1:
                     print(f'read values is {[hex(r) for r in res.registers]}')
                 else:
                     v = BinaryPayloadDecoder.fromRegisters(res.registers, byteorder=Endian.Big, wordorder=Endian.Big)

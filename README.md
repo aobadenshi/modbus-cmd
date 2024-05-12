@@ -5,7 +5,7 @@ A tiny program that provides to easy access modbus devices
 # Usage
 
 ```
-usage: modbus.py [-h] [-p PORT] [-b BAUDRATE] [-u UNIT] [-c C] [-a ADDR] [--value VALUE]
+usage: modbus.py [-h] [-p PORT] [-b BAUDRATE] [-u UNIT] [-c C] [-a ADDR] [-n NBYTES] [--value VALUE] [--values [VALUES ...]]
 
 A tiny program that provides to easy access modbus devices
 
@@ -15,10 +15,13 @@ options:
   -b BAUDRATE, --baudrate BAUDRATE
                         baud rate
   -u UNIT, --unit UNIT  unit number that you communication to
-  -c C                  command (ri: read input register, rh: read holding register, w: write
-                        register)
+  -c C                  command (ri: read input register, rh: read holding register, w: write register, wm: write multiple registers)
   -a ADDR, --addr ADDR  register address to read or write
+  -n NBYTES, --nbytes NBYTES
+                        number of bytes to read
   --value VALUE         Optional: value to write
+  --values [VALUES ...]
+                        Optional: values to write
 
 You need to have a suitable priviledge of tty device.
 ```

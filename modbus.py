@@ -28,7 +28,7 @@ def main():
                 if res.isError():
                     raise Exception(f'Read error from a unit ({args.unit}) with {args.addr}')
                 elif args.nbytes > 1:
-                    print(f'read values is {[hex(r) for r in res.registers]}')
+                    print(f'read values are {[hex(r) for r in res.registers]}')
                 else:
                     v = BinaryPayloadDecoder.fromRegisters(res.registers, byteorder=Endian.Big, wordorder=Endian.Big)
                     print(f'read value is {v.decode_16bit_int()}')
@@ -37,7 +37,7 @@ def main():
                 if res.isError():
                     raise Exception(f'Read error from a unit ({args.unit}) with {args.addr}')
                 elif args.nbytes > 1:
-                    print(f'read values is {[hex(r) for r in res.registers]}')
+                    print(f'read values are {[hex(r) for r in res.registers]}')
                 else:
                     v = BinaryPayloadDecoder.fromRegisters(res.registers, byteorder=Endian.Big, wordorder=Endian.Big)
                     print(f'read value is {v.decode_16bit_int()}')
@@ -50,7 +50,7 @@ def main():
             elif args.c == 'wm':
                 if args.values is not None:
                     ref = c.write_registers(address=args.addr, values=args.values, unit=args.unit)
-                    print(f'wrote value {args.values} to address {args.addr} of {args.unit}')
+                    print(f'wrote values {args.values} to address {args.addr} of {args.unit}')
                 else:
                     raise Exception('No values are specified')
         else:

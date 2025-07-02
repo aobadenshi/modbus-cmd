@@ -3,6 +3,7 @@ import argparse
 from pymodbus.constants import Endian
 from pymodbus.payload import BinaryPayloadDecoder
 from pymodbus.client.sync import ModbusSerialClient
+from pymodbus.exceptions import ConnectionException
 
 def main():
     parser = argparse.ArgumentParser(
@@ -21,40 +22,45 @@ def main():
     args = parser.parse_args()
     print(f'port: {args.port}, baud rate: {args.baudrate}, unit: {args.unit}, command: {args.c}, address: {args.addr}, nbytes: {args.nbytes}, value: {args.value}')
     
-    with ModbusSerialClient(method='rtu', port=args.port, baudrate=args.baudrate) as c:
-        if c.connect():
-            if args.c == 'ri':
-                res = c.read_input_registers(address=args.addr, count=args.nbytes, unit=args.unit)
-                if res.isError():
-                    raise Exception(f'Read error from a unit ({args.unit}) with {args.addr}')
-                elif args.nbytes > 1:
-                    print(f'read values are {[hex(r) for r in res.registers]}')
-                else:
-                    v = BinaryPayloadDecoder.fromRegisters(res.registers, byteorder=Endian.Big, wordorder=Endian.Big)
-                    print(f'read value is {v.decode_16bit_int()}')
-            elif args.c == 'rh':
-                res = c.read_holding_registers(address=args.addr, count=args.nbytes, unit=args.unit)
-                if res.isError():
-                    raise Exception(f'Read error from a unit ({args.unit}) with {args.addr}')
-                elif args.nbytes > 1:
-                    print(f'read values are {[hex(r) for r in res.registers]}')
-                else:
-                    v = BinaryPayloadDecoder.fromRegisters(res.registers, byteorder=Endian.Big, wordorder=Endian.Big)
-                    print(f'read value is {v.decode_16bit_int()}')
-            elif args.c == 'w':
-                if args.value is not None:
-                    res = c.write_register(address=args.addr, value=args.value, unit=args.unit)
-                    print(f'wrote value {args.value} to address {args.addr} of {args.unit}')
-                else:
-                    raise Exception('No value is specified')
-            elif args.c == 'wm':
-                if args.values is not None:
-                    ref = c.write_registers(address=args.addr, values=args.values, unit=args.unit)
-                    print(f'wrote values {args.values} to address {args.addr} of {args.unit}')
-                else:
-                    raise Exception('No values are specified')
-        else:
-            print(f'Could not connect {args.port}, {args.baudrate}')
+    try:
+        with ModbusSerialClient(method='rtu', port=args.port, baudrate=args.baudrate) as c:
+            if c.connect():
+                if args.c == 'ri':
+                    res = c.read_input_registers(address=args.addr, count=args.nbytes, unit=args.unit)
+                    if res.isError():
+                        raise Exception(f'Read error from a unit ({args.unit}) with {args.addr}')
+                    elif args.nbytes > 1:
+                        print(f'read values are {[hex(r) for r in res.registers]}')
+                    else:
+                        v = BinaryPayloadDecoder.fromRegisters(res.registers, byteorder=Endian.Big, wordorder=Endian.Big)
+                        print(f'read value is {v.decode_16bit_int()}')
+                elif args.c == 'rh':
+                    res = c.read_holding_registers(address=args.addr, count=args.nbytes, unit=args.unit)
+                    if res.isError():
+                        raise Exception(f'Read error from a unit ({args.unit}) with {args.addr}')
+                    elif args.nbytes > 1:
+                        print(f'read values are {[hex(r) for r in res.registers]}')
+                    else:
+                        v = BinaryPayloadDecoder.fromRegisters(res.registers, byteorder=Endian.Big, wordorder=Endian.Big)
+                        print(f'read value is {v.decode_16bit_int()}')
+                elif args.c == 'w':
+                    if args.value is not None:
+                        res = c.write_register(address=args.addr, value=args.value, unit=args.unit)
+                        print(f'wrote value {args.value} to address {args.addr} of {args.unit}')
+                    else:
+                        raise Exception('No value is specified')
+                elif args.c == 'wm':
+                    if args.values is not None:
+                        ref = c.write_registers(address=args.addr, values=args.values, unit=args.unit)
+                        print(f'wrote values {args.values} to address {args.addr} of {args.unit}')
+                    else:
+                        raise Exception('No values are specified')
+            else:
+                print(f'Could not connect {args.port}, {args.baudrate}')
+    except ConnectionException as e:
+        print(f'Connection error: {e}')
+    except Exception as e:
+        print(f'Error: {e}')
 
 
 if __name__ == "__main__":
